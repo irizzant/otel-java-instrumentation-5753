@@ -1,0 +1,52 @@
+exposeManagementConsole: true
+
+mgmtIngress:
+  enabled: true
+  hostname: consolle.172.18.0.2.nip.io
+
+command: ["/bin/bash","-c"]
+args:
+- |
+   /opt/bitnami/scripts/wildfly/entrypoint.sh /opt/bitnami/wildfly/customRun.sh
+
+
+extraVolumes:
+- name: shared
+  emptyDir: {}
+- name: customrun
+  hostPath:
+    path: customRun.sh
+
+extraVolumeMounts:
+- name: shared
+  mountPath: /opt/bitnami/wildfly/bin/opentelemetry-javaagent.jar
+  subPath: opentelemetry-javaagent.jar
+- name: customrun
+  mountPath: /opt/bitnami/wildfly/customRun.sh
+ 
+ingress:
+  enabled: true
+  hostname: wildfly.172.18.0.2.nip.io
+  ingressClassName: nginx
+  
+extraEnvVars:
+- name: ADDITIONAL_OPTS
+  value: "-javaagent:/opt/bitnami/wildfly/bin/opentelemetry-javaagent.jar -Dotel.traces.exporter=otlp,logging -Dotel.exporter.otlp.compression=gzip -Dotel.metrics.exporter=prometheus -Djboss.bind.address.management=0.0.0.0 -Djboss.bind.address=0.0.0.0 -Xms64m -Xmx512m -XX:MetaspaceSize=96M -XX:MaxMetaspaceSize=256m -Djava.net.preferIPv4Stack=true -Djboss.modules.system.pkgs=org.jboss.byteman -Djava.awt.headless=true"
+  
+wildflyPassword: password
+
+service:
+  type: ClusterIP
+
+initContainers:
+- name: otel
+  image: curlimages/curl
+  command: ["/bin/sh","-c"]
+  args:
+  - |
+     curl --location -o /tmp/opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.12.1/opentelemetry-javaagent.jar
+     chmod +x /tmp/opentelemetry-javaagent.jar
+     ls -al /tmp   
+  volumeMounts:
+  - name: shared
+    mountPath: /tmp
