@@ -21,16 +21,15 @@ Package the application:
 ```
 cd jsf-demo
 ./mvnw package
+``` 
+Copy the application in Wildfly deployments dir:
 ```
-
-Copy the application in Wildfly deployments dir (replace <pod name>):
-```
-kubectl -n wildfly cp jsf-demo/target/jsf-demo.war <pod name>:/app/jsf-demo.war
+kubectl -n wildfly cp jsf-demo/target/jsf-demo.war $(k -n wildfly get po -o jsonpath="{.items[*].metadata.name}"):/app/jsf-demo.war
 ```
 
 Once the app is deployed visit `http://yourhostname/jsf-demo/hello.xhtml`.
 
-Run the following to see the generated otel metrics (replace <pod name>):
+Run the following to see the generated otel metrics:
 ```
-kubectl -n wildfly exec -it <pod name> -- curl localhost:9464/metrics
+kubectl -n wildfly exec -it $(k -n wildfly get po -o jsonpath="{.items[*].metadata.name}") -- curl localhost:9464/metrics
 ```

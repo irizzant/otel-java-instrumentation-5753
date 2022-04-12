@@ -15,7 +15,7 @@ extraVolumes:
   emptyDir: {}
 - name: customrun
   hostPath:
-    path: customRun.sh
+    path: ./customRun.sh
 
 extraVolumeMounts:
 - name: shared
