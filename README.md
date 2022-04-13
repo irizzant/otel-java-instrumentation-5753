@@ -14,7 +14,7 @@ helm repo add bitnami https://charts.bitnami.com/bitnami
 
 Install the chart:
 ```
-helm upgrade --install wildfly --create-namespace -n wildfly --set wildflyUser=manager,wildflyPassword=password -f wildfly.yaml bitnami/wildfly
+helm upgrade --install wildfly --create-namespace -n wildfly -f wildfly.yaml bitnami/wildfly
 ```
 
 Package the application:
